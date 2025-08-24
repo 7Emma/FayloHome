@@ -1,0 +1,38 @@
+<svg width="320" height="80" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient pour l'icône -->
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Effet d'ombre -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.1)"/>
+    </filter>
+  </defs>
+  
+  <!-- Conteneur avec effet hover simulé -->
+  <g class="logo-container">
+    <!-- Fond arrondi pour l'icône -->
+    <rect x="15" y="15" width="48" height="48" rx="12" ry="12" 
+          fill="url(#blueGradient)" 
+          filter="url(#shadow)"/>
+    
+    <!-- Icône Maison stylisée -->
+    <g transform="translate(39, 28)" fill="white">
+      <!-- Toit de la maison -->
+      <path d="M -10,8 L 0,-2 L 10,8 Z" fill="white"/>
+      <!-- Corps de la maison -->
+      <rect x="-8" y="8" width="16" height="12" fill="white"/>
+      <!-- Porte -->
+      <rect x="-2" y="14" width="4" height="6" fill="url(#blueGradient)"/>
+      <!-- Fenêtre -->
+      <rect x="3" y="11" width="3" height="3" fill="url(#blueGradient)"/>
+      <!-- Cheminée -->
+      <rect x="5" y="3" width="2" height="4" fill="white"/>
+    </g>
+  </g>
+  
+
+</svg>
