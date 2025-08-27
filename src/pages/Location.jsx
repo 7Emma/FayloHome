@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import PropertyCard from "../components/ui/PropertyCard";
 import { getProperties } from "../services/api";
 
-const MaisonsALouer = () => {
+const Location = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -35,6 +35,7 @@ const MaisonsALouer = () => {
     const fetchProperties = async () => {
       try {
         const data = await getProperties();
+        console.log("Données de l'API :", data); // <-- AJOUTEZ CETTE LIGNE
         setProperties(data);
       } catch (error) {
         console.error("Erreur lors du chargement des propriétés :", error);
@@ -377,4 +378,4 @@ const MaisonsALouer = () => {
   );
 };
 
-export default MaisonsALouer;
+export default Location;

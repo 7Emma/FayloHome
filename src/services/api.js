@@ -1,11 +1,11 @@
 import axios from "axios";
 
 // Base URL de ton backend Django
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
 
 // Instance Axios pour réutilisation
 const api = axios.create({
-  baseURL: API_URL + "/api",
+  baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },

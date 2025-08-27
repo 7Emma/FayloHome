@@ -5,7 +5,7 @@ import advantages from "../data/advantage";
 import testimonials from "../data/testimonial";
 import PropertyCard from "../components/ui/PropertyCard";
 
-const BASE_BACKEND_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const BASE_BACKEND_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
 const HomePage = () => {
   // État pour stocker les propriétés récupérées depuis l'API
@@ -19,7 +19,7 @@ const HomePage = () => {
     // Fonction asynchrone pour récupérer les données de l'API
     const fetchProperties = async () => {
       try {
-        const response = await fetch(`${BASE_BACKEND_URL}/api/properties/`);
+        const response = await fetch(`${BASE_BACKEND_URL}/properties/`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

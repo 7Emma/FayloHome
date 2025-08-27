@@ -25,7 +25,8 @@ import {
   GlassWater,
 } from "lucide-react";
 
-const BASE_BACKEND_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const BASE_BACKEND_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -33,26 +34,36 @@ const PropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showImageModal, setShowImageModal] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  // État pour stocker l'URL de l'image principale
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fonction utilitaire pour obtenir l'URL complète
   const getFullUrl = (path) => {
-    // Si le chemin est déjà une URL complète, le retourne tel quel
-    if (path && (path.startsWith("http://") || path.startsWith("https://"))) {
+    if (!path) {
+      console.warn("Chemin d'image vide ou invalide:", path);
+      return "";
+    }
+    if (path.startsWith("http://") || path.startsWith("https://")) {
       return path;
     }
-    // Sinon, ajoute l'URL de base
-    return `${BASE_BACKEND_URL}${path}`;
+    const fullUrl = `${BASE_BACKEND_URL}${path}`;
+    console.log("Full URL construite:", fullUrl);
+    return fullUrl;
   };
 
+  // Fetch la propriété depuis le backend
   useEffect(() => {
     const fetchProperty = async () => {
       try {
+        console.log("Fetching property with ID:", id);
         const data = await getPropertyById(id);
+        console.log("Property data received:", data);
         setProperty(data);
+        if (data.is_favorite !== undefined) {
+          setIsFavorite(data.is_favorite);
+          console.log("État initial favori:", data.is_favorite);
+        }
       } catch (error) {
-        // En cas d'erreur, le chargement reste à false et l'état de la propriété reste null
+        console.error("Erreur lors de la récupération de la propriété:", error);
       } finally {
         setLoading(false);
       }
@@ -60,46 +71,62 @@ const PropertyDetail = () => {
     fetchProperty();
   }, [id]);
 
+  // Toggle favori
   const addToFavorites = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
+      console.warn("Token manquant, utilisateur non connecté");
       alert("Vous devez être connecté pour ajouter aux favoris");
       return;
     }
 
     try {
-      await toggleFavorite(id, token);
+      console.log("Toggling favorite for property ID:", id);
+      const result = await toggleFavorite(id, token);
+      console.log("Résultat toggleFavorite:", result);
       setIsFavorite(!isFavorite);
       alert(isFavorite ? "Retiré des favoris !" : "Ajouté aux favoris !");
     } catch (err) {
+      console.error("Erreur lors de l'opération toggleFavorite:", err);
       alert("Erreur lors de l'opération");
     }
   };
 
+  // Partage du lien
   const shareProperty = async () => {
-    // Utilise la bonne méthode de copie pour éviter les problèmes dans l'iframe
-    const el = document.createElement("textarea");
-    el.value = window.location.href;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand("copy");
-    document.body.removeChild(el);
-    alert("Lien copié dans le presse-papiers !");
+    try {
+      const el = document.createElement("textarea");
+      el.value = window.location.href;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      console.log("Lien copié :", window.location.href);
+      alert("Lien copié dans le presse-papiers !");
+    } catch (err) {
+      console.error("Erreur lors du partage :", err);
+    }
   };
 
+  // Navigation images
   const goToNextImage = () => {
+    if (!property?.images) return;
     setCurrentImageIndex((prevIndex) =>
       prevIndex === property.images.length - 1 ? 0 : prevIndex + 1
     );
+    console.log("Image suivante index:", currentImageIndex + 1);
   };
 
   const goToPreviousImage = () => {
+    if (!property?.images) return;
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? property.images.length - 1 : prevIndex - 1
     );
+    console.log("Image précédente index:", currentImageIndex - 1);
   };
 
   if (loading) {
+    console.log("Chargement en cours...");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
@@ -111,6 +138,7 @@ const PropertyDetail = () => {
   }
 
   if (!property) {
+    console.warn("Propriété introuvable pour ID:", id);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -135,7 +163,7 @@ const PropertyDetail = () => {
     );
   }
 
-  // Crée la liste des équipements à partir des champs booléens du modèle
+  // Création de la liste des équipements
   const amenities = [];
   if (property.wifi)
     amenities.push({
@@ -157,6 +185,11 @@ const PropertyDetail = () => {
       name: "Animaux acceptés",
       icon: <GlassWater className="w-5 h-5 text-purple-500" />,
     });
+
+  console.log(
+    "Équipements détectés :",
+    amenities.map((a) => a.name)
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 mt-20">
