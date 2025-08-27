@@ -1,7 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import HomePage from "../pages/Home";
 import MaisonsALouer from "../pages/Lacotion";
+import PropertyDetail from "../components/ui/PropertyDetail";
 import AboutUs from "../pages/About";
+import Register from "../pages/Register";
+import Login from "../pages/Login";
 
 function AppRoutes() {
   return (
@@ -9,6 +12,9 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />}></Route>
       <Route path="/maisons" element={<MaisonsALouer />}></Route>
       <Route path="/apropos" element={<AboutUs />}></Route>
+      <Route path="/properties/:id" element={<PropertyDetail />} />
+      <Route path="/login" element={<Login />}></Route>
+      <Route path="/register" element={<Register />}></Route>
     </Routes>
   );
 }
