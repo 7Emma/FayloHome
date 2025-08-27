@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 // Instance Axios pour réutilisation
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_URL + "/api",
   headers: {
     "Content-Type": "application/json",
   },

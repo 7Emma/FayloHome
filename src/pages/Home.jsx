@@ -19,7 +19,7 @@ const HomePage = () => {
     // Fonction asynchrone pour récupérer les données de l'API
     const fetchProperties = async () => {
       try {
-        const response = await fetch(`${BASE_BACKEND_URL}/properties/`);
+        const response = await fetch(`${BASE_BACKEND_URL}/api/properties/`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
