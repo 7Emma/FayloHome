@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ArrowRight, Heart, Eye, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-
-// Importez les données factices (à enlever pour le déploiement)
-// import featuredProperties from "../data/featured"; // Ceci est maintenant inutile
 import advantages from "../data/advantage";
 import testimonials from "../data/testimonial";
-
-// Importez le composant de carte de propriété
 import PropertyCard from "../components/ui/PropertyCard";
 
-// TODO: REMPLACER CETTE URL SI VOTRE BACKEND N'EST PAS À CETTE ADRESSE
-// C'est l'URL de base de votre backend Django.
-const BASE_BACKEND_URL = "http://127.0.0.1:8000";
+const BASE_BACKEND_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 const HomePage = () => {
   // État pour stocker les propriétés récupérées depuis l'API

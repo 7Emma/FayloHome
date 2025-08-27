@@ -25,7 +25,7 @@ import {
   GlassWater,
 } from "lucide-react";
 
-const BASE_BACKEND_URL = "http://127.0.0.1:8000";
+const BASE_BACKEND_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 const PropertyDetail = () => {
   const { id } = useParams();

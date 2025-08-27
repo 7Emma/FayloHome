@@ -18,10 +18,8 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-// TODO: REMPLACER CETTE URL SI VOTRE BACKEND N'EST PAS À CETTE ADRESSE
-// C'est l'URL de base de votre backend Django.
-// Par exemple: "http://127.0.0.1:8000" ou "http://votre-domaine.com"
-const BASE_BACKEND_URL = "http://127.0.0.1:8000";
+
+const BASE_BACKEND_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 const PropertyCard = ({ property }) => {
   // Fonction utilitaire pour obtenir l'URL complète

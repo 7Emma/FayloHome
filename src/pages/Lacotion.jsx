@@ -5,13 +5,8 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
-  Filter,
   Award,
-  Users,
   Building2,
-  CheckCircle,
-  ArrowRight,
-  Eye,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import PropertyCard from "../components/ui/PropertyCard";
