@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
-import logo from "../../assets/logo.svg";
-import { Link, useLocation } from "react-router-dom";
 import {
   Menu,
   X,
-  Phone,
-  MapPin,
-  Facebook,
-  Instagram,
-  MessageCircle,
   Home,
+  Building2,
+  UserCheck,
+  Heart,
+  LogIn,
+  Search,
+  MapPin,
+  Filter,
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
-const Header = () => {
+const Header = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [currentPath, setCurrentPath] = useState("/");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    onSearch(searchTerm); // envoie la recherche au parent
+  };
+  // NOUVEAU: Utilisation de useLocation pour connaître la route actuelle
   const location = useLocation();
 
   // Gérer le scroll pour l'effet de transparence
@@ -26,26 +36,63 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fermer le menu mobile lors du changement de route
+  //Gerer l'etat de recherche
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location]);
+    const timer = setTimeout(() => {
+      //onSearch(searchTerm);
+    }, 300); // 300ms après la dernière frappe
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Gérer l'état de la barre de recherche en fonction de la route
+  useEffect(() => {
+    // On active la recherche uniquement sur la page liste d'appartements
+    if (location.pathname === "/appartements") {
+      setIsSearchActive(true);
+    } else {
+      setIsSearchActive(false);
+    }
+  }, [location.pathname]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // Le toggle de recherche est maintenant uniquement pour le mobile
+  const toggleSearch = () => {
+    setIsSearchActive(!isSearchActive);
+  };
+
+  // Navigation items avec les nouvelles routes
   const menuItems = [
-    { name: "Accueil", path: "/" },
-    { name: "Maisons à louer", path: "/maisons" },
-    { name: "À propos", path: "/apropos" },
+    {
+      name: "Appartements",
+      path: "/appartements",
+      icon: Building2,
+      color: "text-blue-600",
+    },
+    {
+      name: "Propriétaire",
+      path: "/proprietaire",
+      icon: UserCheck,
+      color: "text-green-600",
+    },
+    {
+      name: "Favoris",
+      path: "/favoris",
+      icon: Heart,
+      color: "text-red-600",
+    },
   ];
 
   // Fonction pour vérifier si le lien est actif
   const isActiveLink = (path) => {
-    if (path === "/" && location.pathname === "/") return true;
-    if (path !== "/" && location.pathname.startsWith(path)) return true;
-    return false;
+    return currentPath === path;
+  };
+
+  const handleNavClick = (path) => {
+    setCurrentPath(path);
+    setIsMenuOpen(false);
   };
 
   return (
@@ -56,17 +103,21 @@ const Header = () => {
           : "bg-white/90 backdrop-blur-sm"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
+          {/* Logo - Navigation vers Home */}
           <div className="flex-shrink-0 group">
-            <Link to="/" className="flex items-center space-x-3">
+            <Link
+              onClick={() => handleNavClick("/")}
+              to="/home"
+              className="flex items-center space-x-3 cursor-pointer"
+            >
               <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-200">
                 <Home className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
               </div>
               <div>
                 <h1 className="text-xl lg:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                  FayloHome
+                  FayloHome{" "}
                 </h1>
                 <p className="text-xs text-gray-500 hidden sm:block">
                   Votre partenaire immobilier
@@ -75,22 +126,49 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Navigation Desktop */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          {/* Navigation et barre de recherche Desktop */}
+          {/* MODIFICATION: La navigation et la barre de recherche sont maintenant affichées côte à côte si nécessaire */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            <div
+              className={`transition-all duration-300 ${
+                isSearchActive ? "w-48" : "w-0 overflow-hidden"
+              }`}
+            >
+              <form className="relative" onSubmit={handleSearch}>
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Rechercher une ville..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    onSearch(e.target.value); // <-- filtrage immédiat
+                  }}
+                  className="w-full px-12 py-3 border-2 border-gray-200 rounded-full focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-base"
+                />
+              </form>
+            </div>
+
             {menuItems.map((item, index) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`relative font-medium transition-colors duration-200 group py-2 ${
+                onClick={() => handleNavClick(item.path)}
+                className={`relative font-medium transition-colors duration-200 group py-2 px-3 rounded-lg flex items-center space-x-2 ${
                   isActiveLink(item.path)
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                    ? `${item.color} bg-gray-50`
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                {item.name}
+                <item.icon
+                  className={`w-5 h-5 ${
+                    isActiveLink(item.path) ? item.color : "text-gray-500"
+                  }`}
+                />
+                <span>{item.name}</span>
                 <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-blue-600 transition-all duration-300 ${
+                  className={`absolute bottom-0 left-0 h-0.5 bg-current transition-all duration-300 ${
                     isActiveLink(item.path)
                       ? "w-full"
                       : "w-0 group-hover:w-full"
@@ -102,43 +180,39 @@ const Header = () => {
 
           {/* Actions Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* Réseaux sociaux */}
-            <div className="flex items-center space-x-2">
-              <a
-                href="#"
-                className="p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200 hover:scale-110 transform"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="p-2 text-gray-400 hover:text-pink-600 transition-colors duration-200 hover:scale-110 transform"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="p-2 text-gray-400 hover:text-green-600 transition-colors duration-200 hover:scale-110 transform"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </a>
+            {/* Drapeau du Bénin */}
+            <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
+              <div className="w-6 h-4 relative overflow-hidden rounded-sm">
+                <div className="w-full h-1/2 bg-yellow-400"></div>
+                <div className="w-full h-1/2 bg-red-600"></div>
+                <div className="absolute left-0 top-0 w-2 h-full bg-green-600"></div>
+              </div>
+              <span className="text-sm font-medium text-gray-700">Bénin</span>
             </div>
 
-            {/* Bouton CTA */}
-            <Link
-              to="/contact"
-              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-center space-x-2 group"
+            {/* Bouton Connexion */}
+            <button
+              onClick={() => handleNavClick("/connexion")}
+              className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 ${
+                isActiveLink("/connexion")
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white hover:shadow-lg"
+              }`}
             >
-              <Phone className="w-4 h-4 group-hover:rotate-12 transition-transform duration-200" />
-              <span>Contactez-nous</span>
-            </Link>
+              <LogIn className="w-4 h-4" />
+              <span>Connexion</span>
+            </button>
           </div>
 
-          {/* Menu Mobile Button */}
-          <div className="lg:hidden">
+          {/* Boutons et menu Mobile */}
+          <div className="flex items-center lg:hidden space-x-2">
+            <button
+              onClick={toggleSearch}
+              className="p-2 text-gray-700 hover:text-blue-600 transition-colors duration-200"
+              aria-label="Recherche"
+            >
+              <Search className="w-6 h-6" />
+            </button>
             <button
               onClick={toggleMenu}
               className="p-2 text-gray-700 hover:text-blue-600 transition-colors duration-200"
@@ -153,6 +227,22 @@ const Header = () => {
           </div>
         </div>
 
+        {/* Barre de recherche mobile */}
+        <div
+          className={`lg:hidden transition-all duration-300 ease-in-out ${
+            isSearchActive ? "max-h-20 opacity-100" : "max-h-0 opacity-0"
+          } overflow-hidden`}
+        >
+          <div className="relative py-2">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Rechercher une ville, un quartier..."
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-full focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 text-base"
+            />
+          </div>
+        </div>
+
         {/* Menu Mobile */}
         <div
           className={`lg:hidden transition-all duration-300 ease-in-out ${
@@ -160,15 +250,15 @@ const Header = () => {
           } overflow-hidden`}
         >
           <div className="py-4 border-t border-gray-100">
-            <nav className="flex flex-col space-y-1">
+            <nav className="flex flex-col space-y-2">
               {menuItems.map((item, index) => (
-                <Link
+                <button
                   key={item.name}
-                  to={item.path}
-                  className={`block px-4 py-3 rounded-lg transition-all duration-200 transform hover:translate-x-1 ${
+                  onClick={() => handleNavClick(item.path)}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 transform hover:translate-x-1 ${
                     isActiveLink(item.path)
-                      ? "text-blue-600 bg-blue-50 font-medium"
-                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                      ? `${item.color} bg-gray-50 font-medium`
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                   style={{
                     animationDelay: `${index * 50}ms`,
@@ -176,45 +266,39 @@ const Header = () => {
                       ? "slideInLeft 0.3s ease-out forwards"
                       : "none",
                   }}
-                  onClick={() => setIsMenuOpen(false)}
                 >
-                  {item.name}
-                </Link>
+                  <item.icon
+                    className={`w-5 h-5 ${
+                      isActiveLink(item.path) ? item.color : "text-gray-500"
+                    }`}
+                  />
+                  <span>{item.name}</span>
+                </button>
               ))}
             </nav>
 
             {/* Actions Mobile */}
             <div className="mt-4 px-4 space-y-3">
-              {/* Réseaux sociaux Mobile */}
-              <div className="flex justify-center space-x-4">
-                <a
-                  href="#"
-                  className="p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200"
-                >
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a
-                  href="#"
-                  className="p-2 text-gray-400 hover:text-pink-600 transition-colors duration-200"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a
-                  href="#"
-                  className="p-2 text-gray-400 hover:text-green-600 transition-colors duration-200"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                </a>
+              {/* Drapeau Mobile */}
+              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
+                <div className="w-6 h-4 relative overflow-hidden rounded-sm">
+                  <div className="w-full h-1/2 bg-yellow-400"></div>
+                  <div className="w-full h-1/2 bg-red-600"></div>
+                  <div className="absolute left-0 top-0 w-2 h-full bg-green-600"></div>
+                </div>
+                <span className="text-sm font-medium text-gray-700">
+                  République du Bénin
+                </span>
               </div>
 
-              {/* Bouton CTA Mobile */}
-              <Link
-                to="/contact"
-                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center space-x-2"
+              {/* Bouton Connexion Mobile */}
+              <button
+                onClick={() => handleNavClick("/connexion")}
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center space-x-2"
               >
-                <Phone className="w-4 h-4" />
-                <span>Contactez-nous</span>
-              </Link>
+                <LogIn className="w-4 h-4" />
+                <span>Connexion</span>
+              </button>
             </div>
           </div>
         </div>

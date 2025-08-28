@@ -192,7 +192,7 @@ const PropertyDetail = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 mt-20">
+    <div className="min-h-screen bg-gray-100 pt-40 sm:pt-32 md:pt-36 lg:pt-16">
       {/* Header avec navigation */}
       <div className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

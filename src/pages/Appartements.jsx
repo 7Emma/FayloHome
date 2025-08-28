@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
-  Search,
   MapPin,
   Home,
   ChevronLeft,
   ChevronRight,
-  Award,
-  Building2,
+  Calendar,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import PropertyCard from "../components/ui/PropertyCard";
 import { getProperties } from "../services/api";
+import PropertyCard from "../components/ui/PropertyCard";
+import Header from "../components/layout/Header";
 
-const Location = () => {
+const Appartements = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -27,15 +27,62 @@ const Location = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("price-asc");
-  const [showFilters, setShowFilters] = useState(false);
-  const itemsPerPage = 6;
+  const itemsPerPage = 24; // Augmentation du nombre d'éléments par page
 
-  // --- Charger les propriétés depuis le backend ---
+  //Recupere les dommee de HeroSection et fait le filtre
+  const [searchParams] = useSearchParams();
+  const locationQuery = searchParams.get("location") || "";
+  const typeQuery = searchParams.get("type") || "";
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      location: locationQuery,
+      type: typeQuery,
+    }));
+  }, [locationQuery, typeQuery]);
+
+  // États pour la recherche dynamique, la date et la géolocalisation
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [location, setLocation] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+
+  // useEffect pour la date et l'heure
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // useEffect pour la géolocalisation
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setLocationError(null);
+        },
+        (error) => {
+          setLocationError(error.message);
+        }
+      );
+    } else {
+      setLocationError(
+        "La géolocalisation n'est pas supportée par votre navigateur."
+      );
+    }
+  }, []);
+
+  // Charger les propriétés depuis le backend
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const data = await getProperties();
-        console.log("Données de l'API :", data); // <-- AJOUTEZ CETTE LIGNE
+        console.log("Données de l'API :", data);
         setProperties(data);
       } catch (error) {
         console.error("Erreur lors du chargement des propriétés :", error);
@@ -46,7 +93,7 @@ const Location = () => {
     fetchProperties();
   }, []);
 
-  // --- Filtrage et tri ---
+  // Filtrage et tri
   const filteredProperties = useMemo(() => {
     let filtered = properties.filter((property) => {
       const matchLocation =
@@ -102,7 +149,7 @@ const Location = () => {
     return filtered;
   }, [filters, sortBy, properties]);
 
-  // --- Pagination ---
+  // Pagination
   const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentProperties = filteredProperties.slice(
@@ -118,9 +165,9 @@ const Location = () => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSearch = () => {
+  {/*const handleSearch = () => {
     setCurrentPage(1);
-  };
+  };*/}
 
   if (loading) {
     return (
@@ -130,7 +177,7 @@ const Location = () => {
     );
   }
 
-  // --- Pagination Component ---
+  // Pagination Component
   const Pagination = () => {
     const getPageNumbers = () => {
       const pages = [];
@@ -168,14 +215,15 @@ const Location = () => {
         <button
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className={`flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
+          className={`flex items-center px-3 py-2 sm:px-4 rounded-lg transition-all duration-200 text-sm sm:text-base ${
             currentPage === 1
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
               : "bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-500 hover:text-blue-500 shadow-sm hover:shadow-md"
           }`}
         >
           <ChevronLeft className="w-4 h-4 mr-1" />
-          Précédent
+          <span className="hidden sm:inline">Précédent</span>
+          <span className="sm:hidden">Préc.</span>
         </button>
 
         <div className="flex space-x-1">
@@ -184,7 +232,7 @@ const Location = () => {
               key={index}
               onClick={() => typeof page === "number" && setCurrentPage(page)}
               disabled={page === "..."}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={`px-3 py-2 sm:px-4 rounded-lg transition-all duration-200 text-sm sm:text-base ${
                 page === currentPage
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md"
                   : page === "..."
@@ -200,13 +248,14 @@ const Location = () => {
         <button
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className={`flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
+          className={`flex items-center px-3 py-2 sm:px-4 rounded-lg transition-all duration-200 text-sm sm:text-base ${
             currentPage === totalPages
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
               : "bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-500 hover:text-blue-500 shadow-sm hover:shadow-md"
           }`}
         >
-          Suivant
+          <span className="hidden sm:inline">Suivant</span>
+          <span className="sm:hidden">Suiv.</span>
           <ChevronRight className="w-4 h-4 ml-1" />
         </button>
       </div>
@@ -214,86 +263,76 @@ const Location = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center mb-6">
-            <Building2 className="w-12 h-12 mr-4 text-blue-300" />
-            <Award className="w-8 h-8 text-yellow-400" />
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Trouvez votre
-            <span className="block bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent">
-              logement idéal
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto mb-8 leading-relaxed">
-            Des logements de qualité premium pour étudiants, familles et
-            professionnels dans les meilleurs quartiers
-          </p>
-        </div>
-      </section>
+    <div className="min-h-screen bg-gray-50 pt-40 sm:pt-32 md:pt-36 lg:pt-16">
+      <Header onSearch={(term) => updateFilter("location", term)} />
 
-      {/* Search & Filters */}
-      <section className="bg-white shadow-xl relative z-10 -mt-10 mx-4 rounded-2xl">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Search Bar */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end mb-6">
-            <div className="lg:col-span-3">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Où souhaitez-vous habiter ?
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  value={filters.location}
-                  onChange={(e) => updateFilter("location", e.target.value)}
-                  placeholder="Ville, quartier ou adresse"
-                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg"
-                />
+      <div className="container mx-auto p-4 md:p-8">
+        <h4 className=" font-bold text-gray-800 px-2">
+          Biens disponibles à la location
+        </h4>
+        <p className="text-sm sm:text-base text-gray-500 px-2">
+          Filtrez et trouvez facilement votre logement idéal selon vos critères
+        </p>
+      </div>
+
+      {/* NOUVEAU: Informations sur la date et la géolocalisation */}
+      <main className="container mx-auto p-4 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {/* Carte de la date et de l'heure */}
+          <div className="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Calendar className="h-8 w-8 text-blue-500" />
+              <div>
+                <p className="text-xs text-gray-500 font-medium">
+                  Date actuelle
+                </p>
+                <p className="text-lg font-bold text-gray-800">
+                  {currentDate.toLocaleDateString("fr-FR", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
               </div>
             </div>
+            <p className="text-xl font-semibold text-gray-600">
+              {currentDate.toLocaleTimeString("fr-FR")}
+            </p>
+          </div>
 
-            <div className="lg:col-span-1">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Trier par
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-lg"
-              >
-                <option value="price-asc">Prix croissant</option>
-                <option value="price-desc">Prix décroissant</option>
-                <option value="rating">Mieux notés</option>
-                <option value="area">Plus grands</option>
-              </select>
-            </div>
-
-            <div className="lg:col-span-1">
-              <button
-                onClick={handleSearch}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-1 hover:shadow-xl transition-all duration-200 flex items-center justify-center text-lg"
-              >
-                <Search className="w-5 h-5 mr-2" />
-                Rechercher
-              </button>
+          {/* Carte de la géolocalisation */}
+          <div className="bg-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+            <MapPin className="h-8 w-8 text-green-500" />
+            <div>
+              <p className="text-xs text-gray-500 font-medium">
+                Votre localisation
+              </p>
+              {location ? (
+                <p className="text-sm md:text-base font-bold text-gray-800">
+                  Latitude: {location.latitude.toFixed(4)}, Longitude:{" "}
+                  {location.longitude.toFixed(4)}
+                </p>
+              ) : (
+                <p className="text-sm font-semibold text-gray-600">
+                  {locationError || "Obtention de la localisation..."}
+                </p>
+              )}
             </div>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Properties Section */}
-      <main className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+      <main className="max-w-7xl mx-auto px-2 sm:px-4 py-8 sm:py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 px-2">
             Biens disponibles à la location
           </h2>
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-600 font-medium">Affichage:</span>
+          <div className="flex items-center space-x-2 px-2 sm:px-0">
+            <span className="text-gray-600 font-medium text-sm sm:text-base">
+              Affichage:
+            </span>
             <button
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-lg transition-colors ${
@@ -305,7 +344,7 @@ const Location = () => {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -330,7 +369,7 @@ const Location = () => {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -347,9 +386,9 @@ const Location = () => {
         </div>
 
         {currentProperties.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
-            <Home className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+          <div className="text-center py-16 sm:py-20 bg-white rounded-2xl shadow-lg border border-gray-100 mx-2 sm:mx-0">
+            <Home className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-700 mb-2">
               Aucun bien trouvé
             </h3>
           </div>
@@ -357,14 +396,14 @@ const Location = () => {
           <div
             className={
               viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                : "space-y-6"
+                ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 sm:px-0"
+                : "space-y-4 sm:space-y-6 px-2 sm:px-0"
             }
           >
             {currentProperties.map((property) => (
               <div
                 key={property.id}
-                className={viewMode === "grid" ? "" : "mb-4"}
+                className={viewMode === "grid" ? "w-full" : "mb-4"}
               >
                 <PropertyCard property={property} />
               </div>
@@ -378,4 +417,4 @@ const Location = () => {
   );
 };
 
-export default Location;
+export default Appartements;
