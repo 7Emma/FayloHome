@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import HomePage from "../pages/Home";
 import PropertyDetail from "../components/ui/PropertyDetail";
 import AboutUs from "../pages/About";
@@ -9,9 +10,21 @@ import Favoris from "../pages/Favoris";
 import Proprietaire from "../pages/Proprietaire";
 import { MaintenanceWrapper } from "../components/ui/MaintenancePage";
 
+// Composant pour gérer le scroll automatique
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function AppRoutes() {
   return (
     <MaintenanceWrapper>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
