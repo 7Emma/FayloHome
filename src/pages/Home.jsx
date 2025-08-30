@@ -246,14 +246,14 @@ const HomePage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="tel:+22997000000"
+                href="tel:+2290191732432"
                 className="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
               >
                 <Phone className="w-5 h-5 mr-2" />
                 Appelez-nous
               </a>
               <a
-                href="mailto:contact@logementbenin.com"
+                href="mailto:faylohome@gmail.com"
                 className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 <Mail className="w-5 h-5 mr-2" />
@@ -355,7 +355,7 @@ const HomePage = () => {
             </a>
 
             <a
-              href="/register"
+              //href="/register"
               className="bg-blue-600 hover:bg-blue-700 border-2 border-white text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center space-x-2"
             >
               <Users className="w-5 h-5" />

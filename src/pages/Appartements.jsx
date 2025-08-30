@@ -169,13 +169,13 @@ const Appartements = () => {
     setCurrentPage(1);
   };*/}
 
-  if (loading) {
+  {/**if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500 text-xl">
         Chargement des biens...
       </div>
     );
-  }
+  }*/}
 
   // Pagination Component
   const Pagination = () => {

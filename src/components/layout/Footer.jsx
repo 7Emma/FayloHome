@@ -141,7 +141,7 @@ const Footer = () => {
                   href="tel:+22990123456"
                   className="text-gray-300 hover:text-green-400 transition-colors duration-200"
                 >
-                  +229 90 12 34 56
+                  +229 01 91 73 24 32
                 </a>
               </div>
 
@@ -151,7 +151,7 @@ const Footer = () => {
                   href="mailto:contact@faylohome.com"
                   className="text-gray-300 hover:text-orange-400 transition-colors duration-200"
                 >
-                  contact@faylohome.com
+                  faylohome@gmail.com
                 </a>
               </div>
             </div>
