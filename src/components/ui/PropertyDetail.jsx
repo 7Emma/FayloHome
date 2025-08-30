@@ -28,6 +28,8 @@ import {
 const BASE_BACKEND_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
 
+const contactWhatsApp = "2290191732432";
+
 const PropertyDetail = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -190,6 +192,19 @@ const PropertyDetail = () => {
     "Équipements détectés :",
     amenities.map((a) => a.name)
   );
+
+  const message = `Bonjour 👋, je suis intéressé par ce bien immobilier :
+
+      Nom : ${property.title}
+      Prix : ${property.price} FCFA
+      Localisation : ${property.location}
+
+      Voir l'image : ${property.images?.[currentImageIndex]?.image_url}
+      Voir la page : ${window.location.origin}/property/${property.id}
+`;
+  const whatsappLink = `https://wa.me/${contactWhatsApp}?text=${encodeURIComponent(
+    message
+  )}`;
 
   return (
     <div className="min-h-screen bg-gray-100 pt-40 sm:pt-32 md:pt-36 lg:pt-16">
@@ -465,7 +480,8 @@ const PropertyDetail = () => {
               </button>
 
               <a
-                href="tel:0191732432"
+                href={whatsappLink}
+                target="_blank"
                 className="block text-center w-full mt-3 py-3 px-6 border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
               >
                 <Phone className="inline w-5 h-5 mr-2" />
