@@ -347,7 +347,7 @@ const HomePage = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="/maisons"
+              href="/appartements"
               className="bg-white text-orange-600 hover:bg-gray-100 font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center space-x-2"
             >
               <Eye className="w-5 h-5" />

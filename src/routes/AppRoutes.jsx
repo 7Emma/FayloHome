@@ -24,7 +24,6 @@ function ScrollToTop() {
 function AppRoutes() {
   return (
     <MaintenanceWrapper>
-      <ScrollToTop />
       <Routes>
         <Route
           path="/"
